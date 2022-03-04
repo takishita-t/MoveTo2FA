@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MoveTo2FA.Data;
+using MoveTo2FA.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,9 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
             options.SignIn.RequireConfirmedAccount = false)
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
+builder.Services.Configure<SendMailParams>(builder.Configuration.GetSection("SendMailParams"));
+builder.Services.AddSingleton<IMailSender, MailSender>();
+
 
 var app = builder.Build();
 

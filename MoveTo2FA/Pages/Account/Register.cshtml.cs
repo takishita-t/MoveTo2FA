@@ -9,16 +9,19 @@ using System.Net;
 using System.Net.Mail;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
+using MoveTo2FA.Services;
 
 namespace MoveTo2FA.Pages.Account
 {
     public class RegisterModel : PageModel
     {
         private readonly UserManager<IdentityUser> userManager;
+        private readonly IMailSender _mailSender;
 
-        public RegisterModel(UserManager<IdentityUser> userManager)
+        public RegisterModel(UserManager<IdentityUser> userManager, IMailSender mailSender)
         {
             this.userManager = userManager;
+            _mailSender = mailSender;
         }
 
         [BindProperty]
@@ -49,28 +52,29 @@ namespace MoveTo2FA.Pages.Account
                 var confirmationLink = Url.PageLink(pageName: "/Account/ConfirmEmail",
                     values: new { userId = user.Id, token = confirmationToken });
                 //send mail
-                var emailMessage = new MimeMessage();
+                //var emailMessage = new MimeMessage();
 
-                emailMessage.From.Add(new MailboxAddress("", "test@example.com"));
+                //emailMessage.From.Add(new MailboxAddress("", "test@example.com"));
 
-                emailMessage.To.Add(new MailboxAddress("test@test.com", "test@test.com"));
+                //emailMessage.To.Add(new MailboxAddress("test@test.com", "test@test.com"));
 
-                emailMessage.Subject = "Confirm your email";
+                //emailMessage.Subject = "Confirm your email";
 
-                emailMessage.Body = new TextPart("plain") { Text = $"Confirm your email{confirmationLink}"};
+                //emailMessage.Body = new TextPart("plain") { Text = $"Confirm your email{confirmationLink}"};
+
+                //using (var client = new MailKit.Net.Smtp.SmtpClient())
+                //{
+                //    await client.ConnectAsync("localhost", 1025, SecureSocketOptions.Auto);
+                //    //await client.AuthenticateAsync(_sendMailParams.User, _sendMailParams.Password);
+                //    await client.SendAsync(emailMessage);
+                //    await client.DisconnectAsync(true);
+                //}
+                await _mailSender.SendEmailAsync(RegisterViewModel.Email, "Confirm your email",
+                    $"Please confirm your account by <a href='{confirmationLink}");
 
 
-
-                using (var client = new MailKit.Net.Smtp.SmtpClient())
-                {
-                    await client.ConnectAsync("localhost", 1025, SecureSocketOptions.Auto);
-                    //await client.AuthenticateAsync(_sendMailParams.User, _sendMailParams.Password);
-                    await client.SendAsync(emailMessage);
-                    await client.DisconnectAsync(true);
-                }
-
-                //return RedirectToPage("/Account/Login");
-                return Page();
+                return RedirectToPage("/Account/Login");
+                //return Page();
             }
             else
             {

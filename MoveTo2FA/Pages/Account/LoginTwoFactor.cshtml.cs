@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MimeKit;
+using MoveTo2FA.Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace MoveTo2FA.Pages.Account
@@ -11,17 +12,20 @@ namespace MoveTo2FA.Pages.Account
     {
         private readonly UserManager<IdentityUser> userManager;
         private readonly SignInManager<IdentityUser> signInManager;
+        private readonly IMailSender _mailSender;
 
         [BindProperty]
         public EmailMFA EmailMFA { get; set; }
 
         public LoginTwoFactorModel(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager
+            SignInManager<IdentityUser> signInManager,
+            IMailSender mailSender
             )
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            _mailSender = mailSender;
             this.EmailMFA = new EmailMFA();
         }
 
@@ -32,23 +36,26 @@ namespace MoveTo2FA.Pages.Account
             var securityCode = await userManager.GenerateTwoFactorTokenAsync(user, "Email");
 
             //Send to the user
-            var emailMessage = new MimeMessage();
+            //var emailMessage = new MimeMessage();
 
-            emailMessage.From.Add(new MailboxAddress("", "test@example.com"));
+            //emailMessage.From.Add(new MailboxAddress("", "test@example.com"));
 
-            emailMessage.To.Add(new MailboxAddress("test@test.com", "test@test.com"));
+            //emailMessage.To.Add(new MailboxAddress("test@test.com", "test@test.com"));
 
-            emailMessage.Subject = "My Web App's OTP";
+            //emailMessage.Subject = "My Web App's OTP";
 
-            emailMessage.Body = new TextPart("plain") { Text = $"Please use this code as the OTP: {securityCode}" };
+            //emailMessage.Body = new TextPart("plain") { Text = $"Please use this code as the OTP: {securityCode}" };
 
-            using (var client = new MailKit.Net.Smtp.SmtpClient())
-            {
-                await client.ConnectAsync("localhost", 1025, SecureSocketOptions.Auto);
-                //await client.AuthenticateAsync(_sendMailParams.User, _sendMailParams.Password);
-                await client.SendAsync(emailMessage);
-                await client.DisconnectAsync(true);
-            }
+            //using (var client = new MailKit.Net.Smtp.SmtpClient())
+            //{
+            //    await client.ConnectAsync("localhost", 1025, SecureSocketOptions.Auto);
+            //    //await client.AuthenticateAsync(_sendMailParams.User, _sendMailParams.Password);
+            //    await client.SendAsync(emailMessage);
+            //    await client.DisconnectAsync(true);
+            //}
+            await _mailSender.SendEmailAsync(email, "Confirm your email",
+                $"Please use this code as the OTP:{ securityCode}");
+
 
         }
         public async Task<IActionResult> OnPostAsync()
