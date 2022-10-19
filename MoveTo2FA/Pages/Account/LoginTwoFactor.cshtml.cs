@@ -35,7 +35,7 @@ namespace MoveTo2FA.Pages.Account
             var user = await userManager.FindByEmailAsync(email);
             var securityCode = await userManager.GenerateTwoFactorTokenAsync(user, "Email");
 
-            //Send to the user
+            //Send to The User
             //var emailMessage = new MimeMessage();
 
             //emailMessage.From.Add(new MailboxAddress("", "test@example.com"));

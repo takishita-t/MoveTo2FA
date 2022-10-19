@@ -31,12 +31,16 @@ namespace MoveTo2FA.Services
         {
             var emailMessage = new MimeMessage();
 
+            //From
             emailMessage.From.Add(new MailboxAddress(_sendMailParams.User, _sendMailParams.SendAddress));
 
+            //To
             emailMessage.To.Add(new MailboxAddress(email, email));
 
+            //Subject
             emailMessage.Subject = subject;
 
+            //Body
             emailMessage.Body = new TextPart("plain") { Text = message };
 
             using (var client = new MailKit.Net.Smtp.SmtpClient())
