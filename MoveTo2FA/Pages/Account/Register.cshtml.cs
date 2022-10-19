@@ -51,7 +51,7 @@ namespace MoveTo2FA.Pages.Account
                 var confirmationToken = await this.userManager.GenerateEmailConfirmationTokenAsync(user);
                 var confirmationLink = Url.PageLink(pageName: "/Account/ConfirmEmail",
                     values: new { userId = user.Id, token = confirmationToken });
-                //Send Email
+                //send mail
                 //var emailMessage = new MimeMessage();
 
                 //emailMessage.From.Add(new MailboxAddress("", "test@example.com"));
